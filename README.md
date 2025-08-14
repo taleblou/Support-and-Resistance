@@ -1,59 +1,30 @@
-# Support & Resistance (C++)
+# srlevels (Support & Resistance) — C++
 
-A small, production-grade skeleton to compute **Support/Resistance** levels with multiple methods and a unified CLI/API.
+A professional, installable C++ library and CLI for detecting **support/resistance** levels.
 
-## Features
-- Methods: **horizontal (clustered highs/lows)**, **fibonacci**, **psychological (round levels)**, **trendline**.
-- **Single CLI** (`srlines`) with JSON output.
-- Clean CMake build, unit tests, and CI workflow (GitHub Actions).
-- Header-only vendor snippets (tiny JSON writer + minimal doctest) to avoid heavy dependencies.
+- Methods: **horizontal**, **fibonacci**, **psychological**, **trendline**
+- Unified **API** (`include/sr/*.hpp`) and **CLI** (`srlines`)
+- Clean **CMake** build with **install** targets and export config
+- Unit tests, CI, .clang-format, pkg-config file
+- License: MIT — © 2025 **Morteza Taleblou** (<https://taleblou.ir/>)
 
-> License: MIT — © 2025 Morteza Taleblou (https://taleblou.ir/)
-
-## Build
+## Build & Install
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
+cmake --install build --prefix /usr/local
 ```
 
-## Run (example)
+## CLI
 ```bash
-./build/srlines --method horizontal --csv examples/data/sample_1h.csv --min-touches 3 --tolerance 0.01
-./build/srlines --method fibonacci   --csv examples/data/sample_1h.csv --lookback 200
-./build/srlines --method psychological --csv examples/data/sample_1h.csv --step 1
-./build/srlines --method trendline   --csv examples/data/sample_1h.csv --window 3 --tolerance 0.01
+srlines --method horizontal --csv examples/data/sample_1h.csv --min-touches 3 --tolerance 0.01
 ```
 
-Output is JSON like:
-```json
-{
-  "method": "horizontal",
-  "levels": [
-    {"price": 101.2, "touches": 4, "strength": 3.8, "kind":"horizontal"}
-  ]
-}
-```
-
-## API
-Public headers in `include/sr`:
+## Library
 ```cpp
-struct SRLevel { double price; int touches; double strength; std::string kind; };
-std::vector<SRLevel> horizontal_levels(const OHLCVSeries&, int min_touches=3, double tolerance_ratio=0.005);
-std::vector<SRLevel> fibonacci_levels(const OHLCVSeries&, size_t lookback=300);
-std::vector<SRLevel> psychological_levels(const OHLCVSeries&, double step=0.0);
-std::vector<SRLevel> trendline_levels(const OHLCVSeries&, int window=3, double tolerance_ratio=0.005);
+#include <sr/sr_finder.hpp>
+// see include/sr for full API
 ```
 
-## Tests
-```bash
-ctest --test-dir build --output-on-failure
-```
-
-## Notes
-- Algorithms here are **robust baselines** and intentionally simple. You can iterate:
-  - Horizontal: replace histogram binning with DBSCAN/KMeans over pivot points.
-  - Fibonacci: smarter swing detection (ZigZag) + ATR-based tolerance.
-  - Psychological: ATR-adaptive step (e.g., nearest {10, 50, 100} * pow10).
-  - Trendline: RANSAC / Hough-like voting + multi-line detection, not only latest two pivots.
-- For Python bindings later, add `pybind11` and expose the functions above.
-
+## Version
+0.1.0
